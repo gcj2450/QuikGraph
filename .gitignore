@@ -257,3 +257,12 @@ User_*/Out/*
 .vs/
 1
 2
+/Unity19_Sample/.vsconfig
+/Unity19_Sample/.vs
+/Unity19_Sample/Library
+/Unity19_Sample/Logs
+/Unity19_Sample/obj
+/Unity19_Sample/Temp
+/Unity19_Sample/UserSettings
+/Unity19_Sample/*.csproj
+/Unity19_Sample/Unity19_Sample.sln
