@@ -135,7 +135,7 @@ public class Grid
             for (int yLoc = 0; yLoc < gridHeight; yLoc++)
             {
                 var pipe = pipes[xLoc, yLoc];
-                if (pipe != null && pipe.IsPump())
+                if (pipe != null && pipe.IsPump)
                     pipe.Fill(null);
             }
         }

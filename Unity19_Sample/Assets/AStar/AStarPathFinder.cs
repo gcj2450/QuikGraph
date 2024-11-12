@@ -108,13 +108,13 @@ public class AStarPathFinder
 
         var travelDirection = Direction.FromVector((toNode.Location - fromNode.Location)* -1);
 
-        return pipe.ConnectionDirections.Contains(travelDirection) && !pipe.Filled;
+        return pipe.Directions.Contains(travelDirection) && !pipe.Filled;
     }
 
     private List<Direction> GetPossibleDirections(AStarNode node)
     {
         var pipe = grid.GetPipe(node.Location);
 
-        return pipe == null ? Direction.Values() : pipe.ConnectionDirections;
+        return pipe == null ? Direction.Values() : pipe.Directions;
     }
 }

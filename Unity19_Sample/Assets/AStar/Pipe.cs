@@ -1,28 +1,48 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 public class Pipe
 {
     public Vector2Int Location { get; private set; }
     public Grid ParentGrid { get; private set; }
-    public Sprite Graphic { get; private set; }
-    public List<Direction> ConnectionDirections { get; private set; }
     public bool Filled { get; private set; }
     public bool Leaked { get; private set; }
-    public bool Pump { get; private set; }
-    public string Type { get; private set; }
+    public Pipe Type { get; private set; }
     public bool Replaceable { get; private set; }
     public bool CanLeak { get; private set; }
 
-    public Pipe(Sprite graphic, List<Direction> connectionDirections, string type, bool replaceable, bool canLeak = true)
+    public int Value { get; }
+    public string GraphicPath { get; }
+    public List<Direction> Directions { get; }
+    public bool IsPump { get; set; }
+
+    public Pipe Create()
     {
+        var pipe = new Pipe(Value,GraphicPath, Directions, this, Replaceable);
+        if (IsPump)
+        {
+            pipe.SetAsPump();
+        }
+        return pipe;
+    }
+
+    private Sprite LoadGraphic(string path)
+    {
+        // Load graphic from resources or asset bundle
+        return Resources.Load<Sprite>(path);
+    }
+
+    public Pipe(int _value, string graphicPath, List<Direction> directions, Pipe type, bool replaceable, bool canLeak = true)
+    {
+        Value = _value;
         Location = Vector2Int.zero;
         ParentGrid = null;
-        Graphic = graphic;
-        ConnectionDirections = connectionDirections;
+        GraphicPath = graphicPath;
+        Directions = directions;
         Filled = false;
         Leaked = false;
-        Pump = false;
+        IsPump = false;
         Type = type;
         Replaceable = replaceable;
         CanLeak = canLeak;
@@ -59,11 +79,11 @@ public class Pipe
 
         filledPipes.Add(this);
 
-        if (Filled && Type != "Drain")
+        if (Filled && Type != Pipes.Drain)
         {
             var pipeArray = GetConnections(dir);
 
-            if (CanLeak && GetConnections(null).Count != ConnectionDirections.Count)
+            if (CanLeak && GetConnections(null).Count != Directions.Count)
             {
                 Leaked = true;
             }
@@ -82,7 +102,8 @@ public class Pipe
 
     public void Draw(SpriteRenderer renderer, float x, float y)
     {
-        renderer.sprite = Graphic;
+        Sprite sprite = Resources.Load<Sprite>(GraphicPath);
+        renderer.sprite = sprite;
         renderer.transform.position = new Vector3(x, y, 0);
     }
 
@@ -94,7 +115,7 @@ public class Pipe
         var pipeRight = ParentGrid.GetPipe(Location + Direction.Right.Delta);
         var pipeLeft = ParentGrid.GetPipe(Location + Direction.Left.Delta);
 
-        if (dir== Direction.Up)
+        if (dir == Direction.Up)
         {
             pipeUp = null;
         }
@@ -111,32 +132,32 @@ public class Pipe
             pipeLeft = null;
         }
 
-        foreach (var direction in ConnectionDirections)
+        foreach (var direction in Directions)
         {
             if (dir == Direction.Up)
             {
-                if (pipeUp != null && pipeUp.ConnectionDirections.Contains(Direction.Down))
+                if (pipeUp != null && pipeUp.Directions.Contains(Direction.Down))
                 {
                     pipeArray.Add(pipeUp);
                 }
             }
             else if (dir == Direction.Down)
             {
-                if (pipeDown != null && pipeDown.ConnectionDirections.Contains(Direction.Up))
+                if (pipeDown != null && pipeDown.Directions.Contains(Direction.Up))
                 {
                     pipeArray.Add(pipeDown);
                 }
             }
             else if (dir == Direction.Right)
             {
-                if (pipeRight != null && pipeRight.ConnectionDirections.Contains(Direction.Left))
+                if (pipeRight != null && pipeRight.Directions.Contains(Direction.Left))
                 {
                     pipeArray.Add(pipeRight);
                 }
             }
             else if (dir == Direction.Left)
             {
-                if (pipeLeft != null && pipeLeft.ConnectionDirections.Contains(Direction.Right))
+                if (pipeLeft != null && pipeLeft.Directions.Contains(Direction.Right))
                 {
                     pipeArray.Add(pipeLeft);
                 }
@@ -156,7 +177,7 @@ public class Pipe
         var pipeArray = GetConnections(null);
         foreach (var pipe in pipeArray)
         {
-            if (pipe.Pump)
+            if (pipe.IsPump)
             {
                 return true;
             }
@@ -164,14 +185,19 @@ public class Pipe
         return false;
     }
 
-    public void SetAsPump()
+    public List<Direction> GetDirections()
     {
-        Pump = true;
+        return Directions;
     }
 
-    public bool IsPump()
+    public Vector2Int GetLocation()
     {
-        return Pump;
+        return this.Location;
+    }
+
+    public void SetAsPump()
+    {
+        IsPump = true;
     }
 
     public bool IsFilled()

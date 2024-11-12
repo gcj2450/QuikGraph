@@ -64,10 +64,10 @@ public class AStarNode
         return directions;
     }
 
-    public List<PipeType> GetPipes()
+    public List<Pipe> GetPipes()
     {
         List<Direction> directions = GetDirections();
-        List<PipeType> pipes = new List<PipeType>();
+        List<Pipe> pipes = new List<Pipe>();
 
         for (int i = 0; i < directions.Count; i++)
         {
